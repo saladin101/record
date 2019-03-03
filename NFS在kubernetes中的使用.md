@@ -12,7 +12,9 @@
 
 **# vi /etc/exports**
 
-`/home/ps *(rw,no_root_squash,sync)`
+```
+/home/ps *(rw,no_root_squash,sync)
+```
 
 **# exportfs -r**
 
