@@ -32,18 +32,27 @@
 
 `/home/ps	<world>`
 
+- 重启rpcbind服务和nfs服务
+
+
 **# systemctl restart rpcbind && systemctl enable rpcbind**
+
 
 **# systemctl restart nfs && systemctl enable nfs**
 
+
 **# showmount -e 192.168.205.90**
+
 ```
 Export list for 192.168.205.90:
 /home/ps *
 ```
+- 新建两个测试用的目录
+
 **# mkdir -p /home/ps/pv01**
 
 **# mkdir -p /home/ps/pv02**
+- 同样将这两个目录添加到nfs共享目录中
 
 **# vi /etc/exports**
 ```
@@ -51,7 +60,10 @@ Export list for 192.168.205.90:
 /home/ps/pv01 *(rw,no_root_squash,sync)
 /home/ps/pv02 *(rw,no_root_squash,sync)
 ```
+- 重启服务
+
 **# systemctl restart rpcbind && systemctl restart nfs**
+- 查看共享目录信息
 
 **# showmount -e 192.168.205.90**
 ```
@@ -60,6 +72,8 @@ Export list for 192.168.205.90:
 /home/ps/pv01 *
 /home/ps      *
 ```
+- 创建持久卷
+
 **# vi nfs-pv01.yaml**
 ```
 apiVersion: v1
@@ -98,9 +112,12 @@ spec:
     path: /home/ps/pv02
     server: 192.168.205.90
 ```
+- 启动持久卷
+
 **# kubectl apply -f nfs-pv01.yaml**
 
 **# kubectl apply -f nfs-pv02.yaml**
+- 查看持久卷信息
 
 **# kubectl get pv**
 ```
@@ -108,6 +125,8 @@ NAME       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS      CLAIM   STORAG
 nfs-pv01   1Gi        RWO            Recycle          Available           nfs                     13s
 nfs-pv02   1Gi        RWO            Recycle          Available           nfs                     8s
 ```
+- 创建pvc
+
 **# vi nfs-pvc01.yaml**
 ```
 apiVersion: v1
@@ -142,9 +161,12 @@ spec:
     matchLabels:
       pv: nfs-pv02
 ```
+- 启动pvc
+
 **# kubectl apply -f nfs-pvc01.yaml**
 
 **# kubectl apply -f nfs-pvc02.yaml**
+- 查看pvc信息
 
 **# kubectl get pvc**
 ```
@@ -152,6 +174,8 @@ NAME        STATUS   VOLUME     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
 nfs-pvc01   Bound    nfs-pv01   1Gi        RWO            nfs            10s
 nfs-pvc02   Bound    nfs-pv02   1Gi        RWO            nfs            7s
 ```
+- 创建测试用pod配置文件
+
 **# vi nfs-pod01.yaml**
 ```
 kind: Pod
@@ -188,9 +212,12 @@ spec:
       persistentVolumeClaim:
         claimName: nfs-pvc02
 ```
+- 创建pod
+
 **# kubectl apply -f nfs-pod01.yaml**
 
 **# kubectl apply -f nfs-pod02.yaml**
+- 查看pod状态
 
 **# kubectl get pod**
 ```
