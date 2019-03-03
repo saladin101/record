@@ -5,10 +5,16 @@
 **# yum -y install nfs-utils**
 
 ## NFS server配置共享目录
+
 - 创建共享目录
+
 **# mkdir -p /home/ps**
 
+- 设置目录访问权限
+
 **# chmod -R 777 /home/ps**
+
+- 设置目录共享文件
 
 **# vi /etc/exports**
 
@@ -16,9 +22,13 @@
 /home/ps *(rw,no_root_squash,sync)
 ```
 
+- 使配置生效
+
 **# exportfs -r**
 
-**# exportfs **
+- 查看共享目录
+
+**# exportfs**
 
 `/home/ps	<world>`
 
